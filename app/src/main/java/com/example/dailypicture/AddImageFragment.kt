@@ -1,11 +1,15 @@
 package com.example.dailypicture
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 
 // TODO: Rename parameter arguments, choose names that match
@@ -41,13 +45,27 @@ class AddImageFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val makePhoto_Button = view.findViewById<Button>(R.id.addImageFragment)
-
+        
+        val makePhoto_Button = view.findViewById<Button>(R.id.addImage_Button)
+        
         makePhoto_Button.setOnClickListener {
-            findNavController().navigate(R.id.cameraFragment)
+            if (checkPermissions()) {
+                findNavController().navigate(R.id.cameraFragment)
+            }
         }
+        
+    }
 
+    private fun checkPermissions(): Boolean {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.CAMERA),
+                0
+            )
+            return false
+        }
+        return true
     }
 
     companion object {

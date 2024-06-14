@@ -1,59 +1,70 @@
 package com.example.dailypicture
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.Manifest
+import android.app.Activity
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CameraFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CameraFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+        lateinit var imagePreview_ImageView: ImageView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        val CAMERA_REQ_CODE = 11
+        override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            // Inflate the layout for this fragment
+            return inflater.inflate(R.layout.fragment_camera, container, false)
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_camera, container, false)
-    }
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CameraFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CameraFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+            imagePreview_ImageView = view.findViewById<ImageView>(R.id.photoPreview_ImageView)
+
+            makeAnPhoto()
+        }
+
+        private fun makeAnPhoto() {
+            val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(photoIntent, CAMERA_REQ_CODE)
+        }
+
+        private fun checkPermissions(): Boolean {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.CAMERA),
+                    0
+                )
+                return false
+            }
+            return true
+        }
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+
+            if (resultCode != RESULT_OK) {
+                return
+            }
+
+            when(requestCode) {
+                CAMERA_REQ_CODE -> {
+                    val imageBitmap = data?.extras?.get("data") as Bitmap
+                    imagePreview_ImageView.setImageBitmap(imageBitmap)
                 }
             }
+        }
     }
-}

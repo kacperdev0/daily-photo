@@ -12,7 +12,7 @@
         android:layout_width="350dp"
         android:layout_height="100dp"
         android:backgroundTint="@color/white"
-        android:text="Add todays image"
+        android:text="Add today's image"
         android:textColor="@color/black"
         android:textColorLink="@color/black"
         android:textSize="30sp"
