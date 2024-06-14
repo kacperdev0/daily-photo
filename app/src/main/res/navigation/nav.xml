@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/addImageFragment">
+
+    <fragment
+        android:id="@+id/addImageFragment"
+        android:name="com.example.dailypicture.AddImageFragment"
+        android:label="fragment_add_image"
+        tools:layout="@layout/fragment_add_image" />
+    <fragment
+        android:id="@+id/browseImagesFragment"
+        android:name="com.example.dailypicture.BrowseImagesFragment"
+        android:label="fragment_browse_images"
+        tools:layout="@layout/fragment_browse_images" />
+    <fragment
+        android:id="@+id/singleImageFragment"
+        android:name="com.example.dailypicture.SingleImageFragment"
+        android:label="fragment_single_image"
+        tools:layout="@layout/fragment_single_image" />
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.dailypicture.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
+</navigation>
