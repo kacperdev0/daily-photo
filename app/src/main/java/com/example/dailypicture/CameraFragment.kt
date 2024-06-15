@@ -12,12 +12,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
+import java.io.FileOutputStream
 
 class CameraFragment : Fragment() {
         lateinit var imagePreview_ImageView: ImageView
+        lateinit var confirm_Button: Button
+        lateinit var again_Button: Button
+
+        lateinit var madePhoto: Bitmap
 
         val CAMERA_REQ_CODE = 11
         override fun onCreateView(
@@ -31,7 +38,13 @@ class CameraFragment : Fragment() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            imagePreview_ImageView = view.findViewById<ImageView>(R.id.photoPreview_ImageView)
+            imagePreview_ImageView = view.findViewById(R.id.photoPreview_ImageView)
+            confirm_Button = view.findViewById(R.id.confirmPhoto_Button)
+            again_Button = view.findViewById(R.id.makePhotoAgain_Button)
+
+            confirm_Button.setOnClickListener {
+                saveImage(madePhoto, "photo1")
+            }
 
             makeAnPhoto()
         }
@@ -64,7 +77,27 @@ class CameraFragment : Fragment() {
                 CAMERA_REQ_CODE -> {
                     val imageBitmap = data?.extras?.get("data") as Bitmap
                     imagePreview_ImageView.setImageBitmap(imageBitmap)
+                    madePhoto = imageBitmap
                 }
             }
+        }
+
+        private fun saveImage(image: Bitmap, name: String): String {
+            val folder = "photos"
+            val directory = File(requireContext().filesDir, folder)
+
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+
+            val file = File(directory, name + ".jpg")
+
+            val fileOutputStream = FileOutputStream(file)
+            image.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            fileOutputStream.flush()
+
+            println(file.absolutePath)
+
+            return file.absolutePath
         }
     }
