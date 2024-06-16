@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.Manifest
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
@@ -14,10 +15,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class CameraFragment : Fragment() {
         lateinit var imagePreview_ImageView: ImageView
@@ -35,6 +39,7 @@ class CameraFragment : Fragment() {
             return inflater.inflate(R.layout.fragment_camera, container, false)
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
@@ -43,7 +48,7 @@ class CameraFragment : Fragment() {
             again_Button = view.findViewById(R.id.makePhotoAgain_Button)
 
             confirm_Button.setOnClickListener {
-                saveImage(madePhoto, "photo1")
+                saveImage(madePhoto, getTodaysDateAsString())
             }
 
             makeAnPhoto()
@@ -100,4 +105,15 @@ class CameraFragment : Fragment() {
 
             return file.absolutePath
         }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun getTodaysDateAsString(): String {
+            val currentDate = LocalDate.now().toString()
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+            currentDate.format(formatter)
+
+            return currentDate
+        }
+
     }
