@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import com.example.dailypicture.ImagesClasses.PhotosListAdapter
 import java.io.File
 
 // TODO: Rename parameter arguments, choose names that match
@@ -22,6 +23,8 @@ class BrowseImagesFragment : Fragment() {
 
     lateinit var photosListView: ListView
 
+    lateinit var adapter: PhotosListAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,17 +37,13 @@ class BrowseImagesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         photosListView = view.findViewById(R.id.photos_ListView)
-        getPhotosUris()
+        adapter = PhotosListAdapter(requireContext(), getPhotosUris(), R.layout.single_item)
 
+        photosListView.adapter = adapter
     }
 
-    private fun getPhotosUris(): Array<out File>? {
+    private fun getPhotosUris(): Array<File> {
         val folder = File(requireContext().filesDir, "photos")
-
-        for (file in folder.listFiles()) {
-            println(file.name)
-        }
-
         return folder.listFiles()
     }
 
