@@ -63,18 +63,6 @@ class CameraFragment : Fragment() {
             startActivityForResult(photoIntent, CAMERA_REQ_CODE)
         }
 
-        private fun checkPermissions(): Boolean {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(Manifest.permission.CAMERA),
-                    0
-                )
-                return false
-            }
-            return true
-        }
-
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
             super.onActivityResult(requestCode, resultCode, data)
 
