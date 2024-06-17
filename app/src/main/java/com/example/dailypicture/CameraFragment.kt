@@ -51,6 +51,10 @@ class CameraFragment : Fragment() {
                 saveImage(madePhoto, getTodaysDateAsString())
             }
 
+            again_Button.setOnClickListener {
+                makeAnPhoto()
+            }
+
             makeAnPhoto()
         }
 
