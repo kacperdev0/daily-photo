@@ -37,14 +37,14 @@ class BrowseImagesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         photosListView = view.findViewById(R.id.photos_ListView)
-        adapter = PhotosListAdapter(requireContext(), getPhotosUris(), R.layout.single_item)
+        adapter = PhotosListAdapter(requireContext(), getPhotosUris().toMutableList(), R.layout.single_item)
 
         photosListView.adapter = adapter
     }
 
-    private fun getPhotosUris(): Array<File> {
+    private fun getPhotosUris(): List<File> {
         val folder = File(requireContext().filesDir, "photos")
-        return folder.listFiles()
+        return folder.listFiles().toList()
     }
 
 }
