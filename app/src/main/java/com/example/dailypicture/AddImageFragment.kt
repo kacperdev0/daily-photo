@@ -2,15 +2,20 @@ package com.example.dailypicture
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import java.io.File
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -43,11 +48,17 @@ class AddImageFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_add_image, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
         val makePhoto_Button = view.findViewById<Button>(R.id.addImage_Button)
-        
+
+        if (checkIfTodaysImageExists()) {
+            findNavController().navigate(R.id.browseImagesFragment)
+        }
+
+
         makePhoto_Button.setOnClickListener {
             if (checkPermissions()) {
                 findNavController().navigate(R.id.cameraFragment)
@@ -68,6 +79,29 @@ class AddImageFragment : Fragment() {
         return true
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun checkIfTodaysImageExists(): Boolean {
+        val directory = File(requireContext().filesDir, "photos")
+
+        val fileName = getTodaysFileName()
+        for (file in directory.listFiles()) {
+            println(file.name + "  " + fileName)
+
+            if (file.name.toString() == fileName) {
+                return true
+            }
+        }
+        return false
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getTodaysFileName(): String {
+        val currentDate = LocalDate.now()
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        val date = currentDate.format(formatter)
+        return date.toString() + ".png"
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of

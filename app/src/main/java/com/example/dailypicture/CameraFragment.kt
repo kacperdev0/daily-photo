@@ -134,7 +134,8 @@ class CameraFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getTodaysDateAsString(): String {
         val currentDate = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("dd_MM_yyyy")
-        return currentDate.format(formatter)
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        val date = currentDate.format(formatter)
+        return date.toString()
     }
 }
