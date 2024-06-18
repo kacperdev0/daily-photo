@@ -28,10 +28,12 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@Suppress("DEPRECATION")
 class CameraFragment : Fragment() {
     lateinit var imagePreview_ImageView: ImageView
     lateinit var confirm_Button: Button
     lateinit var again_Button: Button
+
     lateinit var image_File: File
     lateinit var imageUri: Uri
 
@@ -44,7 +46,6 @@ class CameraFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_camera, container, false)
     }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -73,6 +74,11 @@ class CameraFragment : Fragment() {
         }
 
         image_File = File(directory, "$name.png")
+        imageUri = FileProvider.getUriForFile(
+            requireContext(),
+            "com.example.dailypicture.fileprovider",
+            image_File
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -81,11 +87,6 @@ class CameraFragment : Fragment() {
             val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             makeFileForImage(getTodaysDateAsString())
 
-            imageUri = FileProvider.getUriForFile(
-                requireContext(),
-                "com.example.dailypicture.fileprovider",
-                image_File
-            )
             photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(photoIntent, CAMERA_REQ_CODE)
         }
@@ -103,12 +104,13 @@ class CameraFragment : Fragment() {
         return true
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == CAMERA_REQ_CODE && resultCode == AppCompatActivity.RESULT_OK) {
             val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, imageUri)
-            val rotatedBitmap = rotateImage(bitmap, -90f)
+            val rotatedBitmap = rotateImage(bitmap)
 
             saveBitmap(rotatedBitmap)
             imagePreview_ImageView.setImageBitmap(rotatedBitmap)
@@ -122,12 +124,12 @@ class CameraFragment : Fragment() {
         fileOutputStream.flush()
         fileOutputStream.close()
     }
-    private fun rotateImage(bitmap: Bitmap, degrees: Float): Bitmap {
+
+    private fun rotateImage(bitmap: Bitmap): Bitmap {
         val matrix = Matrix()
-        matrix.postRotate(degrees)
+        matrix.postRotate(-90f)
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getTodaysDateAsString(): String {
