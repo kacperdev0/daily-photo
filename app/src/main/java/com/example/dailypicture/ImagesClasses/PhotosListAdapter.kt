@@ -25,7 +25,7 @@ class PhotosListAdapter(context: Context, val data: MutableList<File>, val templ
         val bitmap: Bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
         photo_ImageView.setImageBitmap(bitmap)
-        date_TextView.text = file.name
+        date_TextView.text = file.name.substringBeforeLast(".")
 
         delete_ImageButton.setOnClickListener {
             file.delete()

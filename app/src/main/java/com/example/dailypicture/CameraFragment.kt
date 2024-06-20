@@ -59,10 +59,8 @@ class CameraFragment : Fragment() {
         }
 
         again_Button.setOnClickListener {
-            makeAnPhoto()
-        }
 
-        makeAnPhoto()
+        }
     }
 
     private fun makeFileForImage(name: String) {
