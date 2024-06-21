@@ -12,7 +12,15 @@
         android:layout_width="340dp"
         android:layout_height="470dp"
         android:layout_gravity="center"
-        android:src="@drawable/ic_launcher_background" />
+        android:src="@drawable/ic_launcher_background"
+        android:visibility="gone"/>
+
+    <TextureView
+        android:id="@+id/cameraPreview_TextureView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextureView>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -12,12 +12,18 @@ import android.os.Bundle
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -27,12 +33,18 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 @Suppress("DEPRECATION")
 class CameraFragment : Fragment() {
-    lateinit var imagePreview_ImageView: ImageView
     lateinit var confirm_Button: Button
     lateinit var again_Button: Button
+    lateinit var cameraPreview_PreviewView: PreviewView
+
+    private var cameraExecutor = Executors.newSingleThreadExecutor()
+    lateinit var imgCapture: ImageCapture
 
     lateinit var image_File: File
     lateinit var imageUri: Uri
@@ -50,7 +62,7 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        imagePreview_ImageView = view.findViewById(R.id.photoPreview_ImageView)
+        cameraPreview_PreviewView = view.findViewById(R.id.photoPreview_PreviewView)
         confirm_Button = view.findViewById(R.id.confirmPhoto_Button)
         again_Button = view.findViewById(R.id.makePhotoAgain_Button)
 
@@ -61,6 +73,25 @@ class CameraFragment : Fragment() {
         again_Button.setOnClickListener {
 
         }
+
+        startCameraPreview()
+    }
+
+    private fun startCameraPreview() {
+        val cameraProviderFeature = ProcessCameraProvider.getInstance(requireContext())
+        cameraProviderFeature.addListener({
+            val cp = cameraProviderFeature.get()
+            val sideOfCamera = CameraSelector.DEFAULT_FRONT_CAMERA
+
+            val preview = Preview.Builder().build().also { it.setSurfaceProvider(cameraPreview_PreviewView.surfaceProvider) }
+
+            imgCapture = ImageCapture.Builder().build()
+
+            cp.unbindAll()
+            cp.bindToLifecycle(this, sideOfCamera, preview)
+
+        }, ContextCompat.getMainExecutor(requireContext()))
+
     }
 
     private fun makeFileForImage(name: String) {
@@ -111,7 +142,7 @@ class CameraFragment : Fragment() {
             val rotatedBitmap = rotateImage(bitmap)
 
             saveBitmap(rotatedBitmap)
-            imagePreview_ImageView.setImageBitmap(rotatedBitmap)
+            //imagePreview_ImageView.setImageBitmap(rotatedBitmap)
         }
     }
 
