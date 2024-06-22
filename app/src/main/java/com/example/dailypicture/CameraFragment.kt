@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -79,7 +80,9 @@ class CameraFragment : Fragment() {
 
             val preview = Preview.Builder().build().also { it.setSurfaceProvider(cameraPreview_PreviewView.surfaceProvider) }
 
-            imgCapture = ImageCapture.Builder().build()
+            imgCapture = ImageCapture.Builder()
+                .setTargetResolution(Size(720, 1280)) // Example resolution
+                .build()
 
             cp.unbindAll()
             cp.bindToLifecycle(this, sideOfCamera, preview, imgCapture)
@@ -110,11 +113,16 @@ class CameraFragment : Fragment() {
         imageCapture.takePicture(
             outputOptions, ContextCompat.getMainExecutor(requireContext()), object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    var bitmap: Bitmap? = BitmapFactory.decodeFile(imageFile.absolutePath)
-                    bitmap = rotateBitmap(bitmap!!)
-                    val outputStream = FileOutputStream(imageFile)
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                    findNavController().navigate(R.id.browseImagesFragment)
+                    cameraExecutor.execute {
+                        var bitmap: Bitmap? = BitmapFactory.decodeFile(imageFile.absolutePath)
+                        bitmap = rotateBitmap(bitmap!!)
+                        val outputStream = FileOutputStream(imageFile)
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 50, outputStream)
+
+                        requireActivity().runOnUiThread {
+                            findNavController().navigate(R.id.browseImagesFragment)
+                        }
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
