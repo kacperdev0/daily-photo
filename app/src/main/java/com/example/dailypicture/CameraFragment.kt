@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,6 +27,7 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
 import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
@@ -108,7 +110,10 @@ class CameraFragment : Fragment() {
         imageCapture.takePicture(
             outputOptions, ContextCompat.getMainExecutor(requireContext()), object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val bitmap: Bitmap? = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    var bitmap: Bitmap? = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    bitmap = rotateBitmap(bitmap!!)
+                    val outputStream = FileOutputStream(imageFile)
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                     findNavController().navigate(R.id.browseImagesFragment)
                 }
 
@@ -136,5 +141,11 @@ class CameraFragment : Fragment() {
         val currentDate = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         return currentDate.format(formatter)
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(-90f)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 }
