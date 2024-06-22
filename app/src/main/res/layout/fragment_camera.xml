@@ -14,8 +14,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -23,7 +22,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/photoPreview_ImageView">
+        app:layout_constraintTop_toBottomOf="@+id/photoPreview_PreviewView">
 
         <Button
             android:id="@+id/confirmPhoto_Button"
@@ -49,5 +48,6 @@
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
             android:text="Again..." />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

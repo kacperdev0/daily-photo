@@ -1,43 +1,35 @@
 package com.example.dailypicture
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
+import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.Manifest
-import android.graphics.Matrix
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.TextureView
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
+import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
 import androidx.navigation.fragment.findNavController
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-@Suppress("DEPRECATION")
 class CameraFragment : Fragment() {
     lateinit var confirm_Button: Button
     lateinit var again_Button: Button
@@ -45,9 +37,6 @@ class CameraFragment : Fragment() {
 
     private var cameraExecutor = Executors.newSingleThreadExecutor()
     lateinit var imgCapture: ImageCapture
-
-    lateinit var image_File: File
-    lateinit var imageUri: Uri
 
     val CAMERA_REQ_CODE = 11
 
@@ -58,6 +47,7 @@ class CameraFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_camera, container, false)
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,14 +57,16 @@ class CameraFragment : Fragment() {
         again_Button = view.findViewById(R.id.makePhotoAgain_Button)
 
         confirm_Button.setOnClickListener {
-            findNavController().navigate(R.id.browseImagesFragment)
+            makeAnPhoto()
         }
 
         again_Button.setOnClickListener {
-
+            // Reset or restart camera preview if needed
         }
 
-        startCameraPreview()
+        if (checkPermissions()) {
+            startCameraPreview()
+        }
     }
 
     private fun startCameraPreview() {
@@ -88,13 +80,12 @@ class CameraFragment : Fragment() {
             imgCapture = ImageCapture.Builder().build()
 
             cp.unbindAll()
-            cp.bindToLifecycle(this, sideOfCamera, preview)
+            cp.bindToLifecycle(this, sideOfCamera, preview, imgCapture)
 
         }, ContextCompat.getMainExecutor(requireContext()))
-
     }
 
-    private fun makeFileForImage(name: String) {
+    private fun makeFileForImage(name: String): File {
         val folder = "photos"
         val directory = File(requireContext().filesDir, folder)
 
@@ -102,23 +93,30 @@ class CameraFragment : Fragment() {
             directory.mkdirs()
         }
 
-        image_File = File(directory, "$name.png")
-        imageUri = FileProvider.getUriForFile(
-            requireContext(),
-            "com.example.dailypicture.fileprovider",
-            image_File
-        )
+        val image_File = File(directory, "$name.png")
+
+        return image_File
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun makeAnPhoto() {
-        if (checkPermissions()) {
-            val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            makeFileForImage(getTodaysDateAsString())
+        val imageCapture = imgCapture ?: return
+        val imageFile = makeFileForImage(getTodaysDateAsString())
 
-            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            startActivityForResult(photoIntent, CAMERA_REQ_CODE)
-        }
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+
+        imageCapture.takePicture(
+            outputOptions, ContextCompat.getMainExecutor(requireContext()), object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    val bitmap: Bitmap? = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    findNavController().navigate(R.id.browseImagesFragment)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e("CameraFragment", "Image capture failed: ${exception.message}", exception)
+                }
+            }
+        )
     }
 
     private fun checkPermissions(): Boolean {
@@ -133,38 +131,10 @@ class CameraFragment : Fragment() {
         return true
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == CAMERA_REQ_CODE && resultCode == AppCompatActivity.RESULT_OK) {
-            val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, imageUri)
-            val rotatedBitmap = rotateImage(bitmap)
-
-            saveBitmap(rotatedBitmap)
-            //imagePreview_ImageView.setImageBitmap(rotatedBitmap)
-        }
-    }
-
-    private fun saveBitmap(bitmap: Bitmap) {
-        val fileOutputStream: FileOutputStream?
-        fileOutputStream = FileOutputStream(image_File)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-        fileOutputStream.flush()
-        fileOutputStream.close()
-    }
-
-    private fun rotateImage(bitmap: Bitmap): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(-90f)
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getTodaysDateAsString(): String {
         val currentDate = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        val date = currentDate.format(formatter)
-        return date.toString()
+        return currentDate.format(formatter)
     }
 }
