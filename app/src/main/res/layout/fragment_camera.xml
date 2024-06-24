@@ -7,26 +7,33 @@
     tools:context=".CameraFragment"
     android:background="@color/black">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/photoPreview_PreviewView"
-        android:layout_width="365dp"
-        android:layout_height="624dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/rounded_corner">
 
-    </androidx.camera.view.PreviewView>
+        <androidx.camera.view.PreviewView
+            android:id="@+id/photoPreview_PreviewView"
+            android:layout_width="365dp"
+            android:layout_height="624dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/template"
-        app:layout_constraintBottom_toBottomOf="@+id/photoPreview_PreviewView"
-        app:layout_constraintEnd_toEndOf="@+id/photoPreview_PreviewView"
-        app:layout_constraintStart_toStartOf="@+id/photoPreview_PreviewView"
-        app:layout_constraintTop_toTopOf="@+id/photoPreview_PreviewView" />
+        <ImageView
+            android:id="@+id/orientationGrid_ImageView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/template"
+            app:layout_constraintBottom_toBottomOf="@+id/photoPreview_PreviewView"
+            app:layout_constraintEnd_toEndOf="@+id/photoPreview_PreviewView"
+            app:layout_constraintStart_toStartOf="@+id/photoPreview_PreviewView"
+            app:layout_constraintTop_toTopOf="@+id/photoPreview_PreviewView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -34,16 +41,17 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/photoPreview_PreviewView">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         <Button
             android:id="@+id/confirmPhoto_Button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
-            android:textColor="@color/black"
-            android:text="Confirm!" />
+            android:text="Confirm!"
+            android:textColor="@color/black" />
 
         <View
             android:id="@+id/divider"
@@ -54,12 +62,13 @@
 
         <Button
             android:id="@+id/makePhotoAgain_Button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
-            android:textColor="@color/black"
-            android:text="Again..." />
+            android:text="Again..."
+            android:textColor="@color/black" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
